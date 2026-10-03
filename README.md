@@ -2,6 +2,8 @@
 
 把 Canvas LMS 的课程作业、截止时间和倒计时显示在桌面上。本次发布 Windows 版。
 
+[下载 Windows 版](https://github.com/darthurc/canvas-deadlines/releases/latest)，解压后双击程序。
+
 主要功能：最近任务倒计时、夏令时换算、手动标记已交、截止提醒、完整列表网页、拖动位置和可选开机自启。刷新失败会保留上次数据并显示警告。
 
 ## Windows 使用
@@ -50,7 +52,6 @@ python app.py --help
 
 Windows 运行 `打包.bat` 生成 `dist/CanvasDeadlines.exe`。打包必须包含 `tzdata`，否则缺少系统时区数据的机器可能显示错误时间。
 
-Mac 源码包：`python 打包Mac版.py`。它只包含明确列出的程序文件和空配置模板，排除所有运行配置、缓存和日志。
 
 GitHub Actions 的 `.github/workflows/test.yml` 会在 Windows、macOS 和 Linux 上运行回归测试。这是持续验证配置，不代表所有平台已在本机验证。
 
