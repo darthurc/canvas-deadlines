@@ -89,7 +89,7 @@ class StoreTests(TemporaryStore):
     def test_feed_and_query_credentials_redacted_from_log(self):
         store.append_log(['https://example.test/feeds/calendars/user_TEST_ONLY.ics',
                           'access_token=QUERY_TEST Bearer HEADER_TEST'])
-        text = store.LOG_FILE.read_text()
+        text = store.LOG_FILE.read_text(encoding='utf-8')
         for secret in ('user_TEST_ONLY', 'QUERY_TEST', 'HEADER_TEST'):
             self.assertNotIn(secret, text)
 
