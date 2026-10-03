@@ -330,6 +330,9 @@ def get(
     except ssl.SSLError as exc:
         raise TLSFailure(f"HTTPS 证书有问题：{exc}") from exc
 
+    except FileNotFoundError as exc:
+        raise RuntimeError("程序资源文件缺失。请完全退出程序，重新解压最新版后启动。") from exc
+
     except OSError as exc:
         raise NetworkFailure(f"连不上：{exc}") from exc
 

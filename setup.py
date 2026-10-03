@@ -435,6 +435,7 @@ class SetupWindow:
             subprocess.Popen(
                 cmd,
                 cwd=cwd,
+                env=store.child_environment(),
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 close_fds=True,
             )

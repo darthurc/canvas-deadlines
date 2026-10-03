@@ -835,6 +835,7 @@ class Widget:
         try:
             self._fetch_process = subprocess.Popen(
                 cmd, cwd=cwd,
+                env=store.child_environment(),
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 close_fds=True,
             )
@@ -1226,6 +1227,7 @@ class Widget:
         try:
             subprocess.Popen(
                 cmd, cwd=cwd,
+                env=store.child_environment(),
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 close_fds=True,
             )
@@ -1273,6 +1275,7 @@ def main() -> int:
                 cmd, cwd = store.child_command("setup")
                 subprocess.Popen(
                     cmd, cwd=cwd,
+                    env=store.child_environment(),
                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                     close_fds=True,
                 )

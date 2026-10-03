@@ -421,6 +421,17 @@ def append_log(lines: list[str], keep_days: int = 60) -> None:
 # --------------------------------------------------------------------------
 # 入口脚本统一要做的两件事
 # --------------------------------------------------------------------------
+def child_environment() -> dict[str, str]:
+    """独立启动打包程序，避免父进程退出后删除子进程仍在用的资源。"""
+    env = os.environ.copy()
+    if getattr(sys, "frozen", False):
+        env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+        # Tk 路径由新实例自己的 runtime hook 设置，不能继承旧临时目录。
+        env.pop("TCL_LIBRARY", None)
+        env.pop("TK_LIBRARY", None)
+    return env
+
+
 def child_command(what: str, *args: str) -> tuple[list[str], str]:
     """
     怎么把「另一个脚本」拉起来。返回 (命令行, 工作目录)。
