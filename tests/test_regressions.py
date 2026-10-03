@@ -99,6 +99,13 @@ class StoreTests(TemporaryStore):
 
 
 class NetworkTests(unittest.TestCase):
+    def test_missing_local_resource_is_not_a_network_failure(self):
+        opener = Mock()
+        opener.open.side_effect = FileNotFoundError('base_library.zip')
+        with patch('netutil.ssl_context', return_value=None), patch('urllib.request.build_opener', return_value=opener):
+            with self.assertRaisesRegex(RuntimeError, '程序资源文件缺失'):
+                netutil.get('https://canvas.example.edu/test.ics')
+
     def test_body_read_timeout_is_not_a_success(self):
         resp = Mock(headers={})
         resp.read.side_effect = socket.timeout('interrupted')
@@ -262,6 +269,22 @@ class WidgetTests(unittest.TestCase):
 
 
 class PackagingTests(unittest.TestCase):
+    def test_independent_frozen_child_resets_runtime_without_mutating_parent(self):
+        import os
+        original = {'PATH': 'keep', 'TCL_LIBRARY': 'old-tcl', 'TK_LIBRARY': 'old-tk'}
+        with patch.dict(os.environ, original, clear=True), patch.object(sys, 'frozen', True, create=True):
+            env = store.child_environment()
+            self.assertEqual(env['PYINSTALLER_RESET_ENVIRONMENT'], '1')
+            self.assertEqual(env['PATH'], 'keep')
+            self.assertNotIn('TCL_LIBRARY', env)
+            self.assertNotIn('TK_LIBRARY', env)
+            self.assertEqual(dict(os.environ), original)
+
+    def test_source_child_preserves_environment(self):
+        import os
+        with patch.dict(os.environ, {'PATH': 'keep'}, clear=True), patch.object(sys, 'frozen', False, create=True):
+            self.assertEqual(store.child_environment(), {'PATH': 'keep'})
+
     @unittest.skipUnless((ROOT / '打包Mac版.py').exists(), 'Mac packaging is not part of this release')
     def test_mac_package_never_collects_personal_config(self):
         spec = importlib.util.spec_from_file_location('package_mac', ROOT / '打包Mac版.py')
