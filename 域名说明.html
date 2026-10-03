@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>canvas.lms.unimelb.edu.au 到底谁在谁下面</title>
+<style>
+  :root{
+    --bg:#faf9f7; --surface:#ffffff; --fg:#232120; --muted:#6b6560;
+    --line:#e5e0d8; --accent:#b08968; --accent-soft:#f3ece3;
+    --red:#c0392b; --red-soft:#fdf0ee;
+    --green:#2e7d52; --green-soft:#eef7f1;
+    --blue:#3d6b8e; --blue-soft:#eef3f8;
+    --mono:"Consolas","Cascadia Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:48px 20px 80px;
+    background:var(--bg); color:var(--fg);
+    font:16px/1.75 "Microsoft YaHei UI","PingFang SC",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px; margin:0 auto}
+
+  h1{font-size:26px; line-height:1.4; margin:0 0 8px; letter-spacing:-.2px}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 40px}
+
+  h2{
+    font-size:19px; margin:52px 0 16px; padding-left:12px;
+    border-left:3px solid var(--accent); line-height:1.3;
+  }
+  h3{font-size:16px; margin:28px 0 10px; color:var(--fg)}
+  p{margin:12px 0}
+
+  .lead{
+    background:var(--accent-soft); border:1px solid var(--line);
+    border-radius:12px; padding:20px 24px; margin:0 0 8px;
+    font-size:17px; line-height:1.8;
+  }
+  .lead b{color:var(--red)}
+
+  code{
+    font-family:var(--mono); font-size:.9em;
+    background:#f0ece5; padding:2px 6px; border-radius:4px;
+    border:1px solid var(--line);
+  }
+
+  figure{margin:24px 0; background:var(--surface); border:1px solid var(--line);
+         border-radius:14px; padding:8px 8px 4px}
+  figure svg{display:block; width:100%; height:auto}
+  figcaption{color:var(--muted); font-size:13.5px; text-align:center;
+             padding:10px 12px 12px; line-height:1.6}
+
+  table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;
+        background:var(--surface); border:1px solid var(--line);
+        border-radius:10px; overflow:hidden}
+  th,td{padding:11px 14px; text-align:left; border-bottom:1px solid var(--line)}
+  th{background:var(--accent-soft); font-weight:600; font-size:14px}
+  tr:last-child td{border-bottom:none}
+  td.mono{font-family:var(--mono); font-size:13px}
+
+  .card{background:var(--surface); border:1px solid var(--line);
+        border-radius:12px; padding:18px 22px; margin:18px 0}
+  .card.ok{border-left:4px solid var(--green); background:var(--green-soft)}
+  .card.no{border-left:4px solid var(--red); background:var(--red-soft)}
+  .card.info{border-left:4px solid var(--blue); background:var(--blue-soft)}
+  .card h3{margin-top:0}
+
+  ul{margin:12px 0; padding-left:22px}
+  li{margin:7px 0}
+
+  .pill{display:inline-block; font-size:12px; font-weight:600;
+        padding:2px 9px; border-radius:20px; vertical-align:middle}
+  .pill.g{background:var(--green); color:#fff}
+  .pill.r{background:var(--red); color:#fff}
+  .pill.m{background:#d8d2c8; color:#4a453f}
+
+  footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line);
+         color:var(--muted); font-size:13.5px; line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>canvas.lms.unimelb.edu.au<br>到底谁在谁下面</h1>
+  <p class="sub">实测于 2026-09-23 · 墨尔本大学</p>
+
+  <div class="lead">
+    结论：<b>你说反了。</b>不是 LMS 在 Canvas 下面，是 <b>Canvas 挂在 LMS 下面</b>。<br>
+    学校先有一个「学习管理系统」的地盘（<code>lms.unimelb.edu.au</code>），
+    然后在这个地盘里塞了一个叫 Canvas 的软件（<code>canvas.lms.unimelb.edu.au</code>）。
+  </div>
+
+  <h2>一、域名要从右往左读</h2>
+
+  <p>这是最容易搞反的地方。域名不是「从大往小」排的，是<b>左边最具体、右边最大</b>——
+     右边的那个拥有左边的那个。</p>
+
+  <figure>
+    <svg viewBox="0 0 780 250" role="img" aria-label="域名从右往左的层级关系">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#b08968"/>
+        </marker>
+      </defs>
+
+      <!-- 域名三段 -->
+      <text x="60" y="66" font-family="Consolas,monospace" font-size="24" fill="#232120">canvas</text>
+      <text x="163" y="66" font-family="Consolas,monospace" font-size="24" fill="#b08968">.</text>
+      <text x="178" y="66" font-family="Consolas,monospace" font-size="24" fill="#232120">lms</text>
+      <text x="238" y="66" font-family="Consolas,monospace" font-size="24" fill="#b08968">.</text>
+      <text x="253" y="66" font-family="Consolas,monospace" font-size="24" fill="#232120">unimelb.edu.au</text>
+
+      <!-- 方框标注 -->
+      <rect x="52" y="46" width="92" height="30" rx="6" fill="none" stroke="#3d6b8e" stroke-width="2"/>
+      <rect x="170" y="46" width="52" height="30" rx="6" fill="none" stroke="#b08968" stroke-width="2"/>
+      <rect x="245" y="46" width="196" height="30" rx="6" fill="none" stroke="#2e7d52" stroke-width="2"/>
+
+      <!-- 引线 -->
+      <line x1="98" y1="86" x2="98" y2="122" stroke="#3d6b8e" stroke-width="1.5" stroke-dasharray="3,3"/>
+      <line x1="196" y1="86" x2="196" y2="122" stroke="#b08968" stroke-width="1.5" stroke-dasharray="3,3"/>
+      <line x1="343" y1="86" x2="343" y2="122" stroke="#2e7d52" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+      <!-- 说明文字 -->
+      <text x="98" y="144" text-anchor="middle" font-size="15" font-weight="bold" fill="#3d6b8e">最具体</text>
+      <text x="98" y="164" text-anchor="middle" font-size="13" fill="#3d6b8e">一台服务</text>
+      <text x="98" y="182" text-anchor="middle" font-size="13" fill="#6b6560">跑着 Canvas</text>
+
+      <text x="196" y="144" text-anchor="middle" font-size="15" font-weight="bold" fill="#b08968">中间</text>
+      <text x="196" y="164" text-anchor="middle" font-size="13" fill="#b08968">一块地盘</text>
+      <text x="196" y="182" text-anchor="middle" font-size="13" fill="#6b6560">LMS 系统</text>
+
+      <text x="343" y="144" text-anchor="middle" font-size="15" font-weight="bold" fill="#2e7d52">最大</text>
+      <text x="343" y="164" text-anchor="middle" font-size="13" fill="#2e7d52">墨尔本大学</text>
+      <text x="343" y="182" text-anchor="middle" font-size="13" fill="#6b6560">学校本身</text>
+
+      <!-- 归属箭头 -->
+      <line x1="52" y1="212" x2="440" y2="212" stroke="#b08968" stroke-width="1.5"
+            marker-end="url(#ar)" stroke-dasharray="6,4"/>
+      <text x="246" y="238" text-anchor="middle" font-size="14" fill="#b08968">
+        归 谁 所 有 ── 越 往 右 越 大
+      </text>
+    </svg>
+    <figcaption>读法是：<b>unimelb.edu.au</b> 这所学校 → 下面有个 <b>lms</b> 系统 → 里面跑着 <b>canvas</b></figcaption>
+  </figure>
+
+  <h2>二、LMS 是「类别」，Canvas 是「牌子」</h2>
+
+  <p>LMS = <b>L</b>earning <b>M</b>anagement <b>S</b>ystem，学习管理系统。
+     它不是一个软件的名字，是<b>一类软件</b>的统称——就像「快递柜」不是某个品牌。</p>
+
+  <table>
+    <tr><th style="width:38%">说法</th><th>是什么</th></tr>
+    <tr><td>LMS</td><td>类别。泛指所有管课程、管作业、管成绩的系统</td></tr>
+    <tr><td>Canvas</td><td>牌子。做出 LMS 这类东西的一个具体产品</td></tr>
+    <tr><td>Moodle / Blackboard</td><td>别的牌子，跟 Canvas 是竞品</td></tr>
+  </table>
+
+  <p>所以「墨尔本大学用的 LMS」和「墨尔本大学用的 Canvas」说的是同一件事——
+     学校选的牌子就是 Canvas。你在网址里看到的 <code>lms.unimelb.edu.au</code>
+     是学校给这块地盘起的通用名字：万一哪天换成 Moodle，域名不用改，
+     换个软件塞进去就行。</p>
+
+  <h2>三、实测：Canvas 真会把你送回 LMS</h2>
+
+  <p>我实际发请求验证了。用浏览器身份访问 Canvas 的首页，它<b>不自己显示页面</b>，
+     而是把你<b>交给</b> <code>lms.unimelb.edu.au/canvas</code>：</p>
+
+  <figure>
+    <svg viewBox="0 0 780 300" role="img" aria-label="浏览器路径与 API 路径的分叉">
+      <defs>
+        <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#2e7d52"/>
+        </marker>
+        <marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#3d6b8e"/>
+        </marker>
+      </defs>
+
+      <!-- 起点 -->
+      <rect x="250" y="18" width="280" height="46" rx="9" fill="#f3ece3" stroke="#b08968" stroke-width="1.5"/>
+      <text x="390" y="40" text-anchor="middle" font-size="14" font-weight="bold" fill="#232120">你的浏览器 / 程序</text>
+      <text x="390" y="57" text-anchor="middle" font-size="12" fill="#6b6560">要去同一个域名</text>
+
+      <line x1="340" y1="64" x2="200" y2="104" stroke="#2e7d52" stroke-width="1.8" marker-end="url(#ag)"/>
+      <line x1="440" y1="64" x2="580" y2="104" stroke="#3d6b8e" stroke-width="1.8" marker-end="url(#ab)"/>
+      <text x="228" y="94" font-size="12.5" font-weight="bold" fill="#2e7d52">点网页</text>
+      <text x="500" y="94" font-size="12.5" font-weight="bold" fill="#3d6b8e">调接口</text>
+
+      <!-- 左：网页 -->
+      <rect x="30" y="112" width="330" height="60" rx="9" fill="#fff" stroke="#e5e0d8"/>
+      <text x="195" y="136" text-anchor="middle" font-family="Consolas,monospace" font-size="12.5" fill="#232120">canvas.lms.unimelb.edu.au</text>
+      <text x="195" y="158" text-anchor="middle" font-size="12" fill="#6b6560">里面的网页</text>
+
+      <line x1="195" y1="172" x2="195" y2="200" stroke="#2e7d52" stroke-width="1.8" marker-end="url(#ag)"/>
+      <text x="240" y="192" font-size="12" fill="#2e7d52">302 转交</text>
+
+      <rect x="30" y="208" width="330" height="60" rx="9" fill="#eef7f1" stroke="#2e7d52" stroke-width="1.5"/>
+      <text x="195" y="232" text-anchor="middle" font-family="Consolas,monospace" font-size="12.5" fill="#232120">lms.unimelb.edu.au/canvas</text>
+      <text x="195" y="254" text-anchor="middle" font-size="12" fill="#2e7d52">★ 最后停在这儿 —— LMS 门户</text>
+
+      <!-- 右：API -->
+      <rect x="420" y="112" width="330" height="60" rx="9" fill="#fff" stroke="#e5e0d8"/>
+      <text x="585" y="136" text-anchor="middle" font-family="Consolas,monospace" font-size="12" fill="#232120">canvas.lms.unimelb.edu.au</text>
+      <text x="585" y="155" text-anchor="middle" font-family="Consolas,monospace" font-size="12" fill="#232120">/api/v1/courses</text>
+
+      <line x1="585" y1="172" x2="585" y2="200" stroke="#3d6b8e" stroke-width="1.8" marker-end="url(#ab)"/>
+      <text x="630" y="192" font-size="12" fill="#3d6b8e">不转交</text>
+
+      <rect x="420" y="208" width="330" height="60" rx="9" fill="#eef3f8" stroke="#3d6b8e" stroke-width="1.5"/>
+      <text x="585" y="232" text-anchor="middle" font-family="Consolas,monospace" font-size="12.5" fill="#232120">401 unauthenticated</text>
+      <text x="585" y="254" text-anchor="middle" font-size="12" fill="#3d6b8e">★ 原地不动，只等一个 token</text>
+    </svg>
+    <figcaption>
+      左边是<b>给人看的网页</b>，被收进 LMS 门户；右边是<b>给程序用的接口</b>，独立在外。
+      我们这个项目走的是右边那条。
+    </figcaption>
+  </figure>
+
+  <h3>实测原始数据</h3>
+  <table>
+    <tr>
+      <th>访问的地址</th><th style="width:20%">结果</th><th>最终停在哪</th>
+    </tr>
+    <tr>
+      <td class="mono">lms.unimelb.edu.au</td>
+      <td><span class="pill r">403</span></td>
+      <td class="mono">原地（门户根目录，不直接给看）</td>
+    </tr>
+    <tr>
+      <td class="mono">canvas.lms.unimelb.edu.au</td>
+      <td><span class="pill g">200</span></td>
+      <td class="mono">lms.unimelb.edu.au/canvas ← 被转交</td>
+    </tr>
+    <tr>
+      <td class="mono">canvas.lms.unimelb.edu.au<br>/api/v1/courses</td>
+      <td><span class="pill r">401</span></td>
+      <td class="mono">原地不动 ← 这个才是我们要的</td>
+    </tr>
+  </table>
+
+  <div class="card info">
+    <h3>顺便解释两个数字</h3>
+    <ul>
+      <li><b>401 不是错误，是正常。</b>它的意思是「我认识这个地址，但你没出示证件」。
+          Canvas 回的是标准 JSON：<code>{"status":"unauthenticated"}</code> ——
+          接口活着，就等你的 token。</li>
+      <li><b>403 是「不让看」。</b>门户首页挡掉了非浏览器访问（我换成 Chrome 的身份再试，
+          Canvas 那条就变 200 了）。这不影响我们——我们不走网页那条路。</li>
+    </ul>
+  </div>
+
+  <div class="card ok">
+    <h3>所以 config.json 里写的地址是对的</h3>
+    <p>配置文件里那一行是：</p>
+    <p><code>"base_url": "https://canvas.lms.unimelb.edu.au"</code></p>
+    <p>程序会自动在后面补 <code>/api/v1/...</code>。也就是说它直接敲 API 那扇门，
+        <b>不经过 LMS 门户、不经过跳转、不碰网页</b>——上面图里右边那条路。
+        这也是为什么它不需要登录、不需要模拟浏览器点击。</p>
+  </div>
+
+  <h2>四、跟你要做的事有什么关系</h2>
+
+  <p>你要生成 token 的地方，在 <b>Canvas 里面</b>，不在 LMS 门户里。所以：</p>
+  <ul>
+    <li>浏览器打开 Canvas，正常登进去（会先经过 <code>lms.unimelb.edu.au/canvas</code>，这是正常的）</li>
+    <li>进去之后找 <b>头像 → Account → Settings → Approved Integrations → + New Access Token</b></li>
+    <li>生成的那串字符，就是程序敲 API 那扇门要出示的证件</li>
+  </ul>
+
+  <div class="card no">
+    <h3>万一看不到 <code>+ New Access Token</code> 按钮</h3>
+    <p>那说明墨大可能把学生自助生成 token 的功能关掉了（教职工走审批流程）。
+       别自己瞎试、别去找别的办法绕过——告诉我，我换备选方案
+       （用 Canvas 个人日历的订阅链接，代价是看不到「交没交」的状态）。</p>
+  </div>
+
+  <footer>
+    这份说明是为了回答「lms 和 canvas 谁在谁下面」而画的，实测数据来自 2026-09-23。<br>
+    项目位置：<code>项目文件夹</code> · 用法看同目录的 <code>使用说明.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

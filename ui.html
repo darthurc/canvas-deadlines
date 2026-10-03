@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Canvas 截止日期</title>
+<!--
+  这是「完整列表」视图。数据由 fetch.py 在生成时直接写入页面，
+  所以这个文件是自包含的：断网、U 盘拷走、发到手机上，双击都能看。
+
+  主界面是桌面挂件，这个网页的用途是「一眼看完整学期」和打印。
+-->
+<style>
+:root{
+  --bg:#faf9f7; --surface:#fff; --surface-2:#f2efeb; --fg:#24211e; --muted:#6f6862;
+  --line:#e3ded8; --accent:#b4552d; --accent-soft:#f6e6de;
+  --bad:#c0392b; --bad-soft:#fbe4e1;
+  --soon:#c2610f; --soon-soft:#fbeade;
+  --week:#a07800; --week-soft:#faf2d8;
+  --ok:#2e7d52; --ok-soft:#e2f0e8;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1a1816; --surface:#232120; --surface-2:#2b2927; --fg:#ece8e3; --muted:#a09890;
+    --line:#383432; --accent:#e08a5f; --accent-soft:#3a2a22;
+    --bad:#e57365; --bad-soft:#3a2320;
+    --soon:#e09a52; --soon-soft:#3a2a18;
+    --week:#d9c06a; --week-soft:#332f1c;
+    --ok:#6fbf94; --ok-soft:#1f3229;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1a1816; --surface:#232120; --surface-2:#2b2927; --fg:#ece8e3; --muted:#a09890;
+  --line:#383432; --accent:#e08a5f; --accent-soft:#3a2a22;
+  --bad:#e57365; --bad-soft:#3a2320;
+  --soon:#e09a52; --soon-soft:#3a2a18;
+  --week:#d9c06a; --week-soft:#332f1c;
+  --ok:#6fbf94; --ok-soft:#1f3229;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+.wrap{max-width:940px; margin:0 auto; padding:0 16px 64px}
+
+header{
+  position:sticky; top:0; z-index:10;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(1.6) blur(12px);
+  border-bottom:1px solid var(--line);
+  margin:0 -16px 20px; padding:18px 16px 14px;
+}
+h1{margin:0; font-size:19px; font-weight:650; letter-spacing:.2px}
+h1 .sub{font-weight:400; color:var(--muted); font-size:13px; margin-left:8px}
+.meta{color:var(--muted); font-size:12.5px; margin-top:5px; display:flex; flex-wrap:wrap; gap:4px 14px}
+#theme{
+  position:absolute; right:16px; top:18px; border:1px solid var(--line); background:var(--surface);
+  color:var(--muted); border-radius:8px; width:34px; height:30px; cursor:pointer; font-size:14px;
+}
+#theme:hover{color:var(--fg); border-color:var(--muted)}
+
+.banner{
+  border-radius:var(--radius); padding:11px 14px; margin-bottom:16px; font-size:14px;
+  border:1px solid; display:flex; gap:10px; align-items:flex-start;
+}
+.banner.bad{background:var(--bad-soft); border-color:var(--bad); color:var(--bad)}
+.banner.warn{background:var(--week-soft); border-color:var(--week); color:var(--week)}
+.banner b{font-weight:650}
+.banner .fix{margin-top:4px; font-size:13px; opacity:.9}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; margin-bottom:22px}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px}
+.tile .n{font:650 26px/1.1 Consolas, ui-monospace, monospace; letter-spacing:-.5px}
+.tile .k{color:var(--muted); font-size:12.5px; margin-top:3px}
+.tile.bad .n{color:var(--bad)} .tile.soon .n{color:var(--soon)} .tile.ok .n{color:var(--ok)}
+
+.controls{display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap}
+.chip{
+  border:1px solid var(--line); background:var(--surface); color:var(--muted);
+  border-radius:999px; padding:5px 13px; font-size:13px; cursor:pointer; font-family:inherit;
+}
+.chip:hover{border-color:var(--muted); color:var(--fg)}
+.chip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:600}
+#q{
+  flex:1; min-width:150px; border:1px solid var(--line); background:var(--surface); color:var(--fg);
+  border-radius:999px; padding:6px 14px; font:inherit; font-size:13px;
+}
+#q:focus{outline:none; border-color:var(--accent)}
+
+h2{
+  font-size:13px; font-weight:650; text-transform:none; letter-spacing:.4px;
+  color:var(--muted); margin:26px 0 10px; display:flex; align-items:center; gap:9px;
+}
+h2::after{content:""; flex:1; height:1px; background:var(--line)}
+h2 .count{font-weight:400; opacity:.75}
+
+.task{
+  position:relative; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); padding:12px 14px 12px 17px; margin-bottom:8px;
+  border-left:3px solid var(--line);
+}
+.task.past,.task.urgent{border-left-color:var(--bad)}
+.task.soon{border-left-color:var(--soon)}
+.task.week{border-left-color:var(--week)}
+.task.done{border-left-color:var(--ok); opacity:.62}
+.task.done .title{text-decoration:line-through; text-decoration-color:var(--muted)}
+
+.row1{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.code{
+  font:600 12px/1 ui-monospace, Consolas, monospace; letter-spacing:.3px;
+  background:var(--surface-2); color:var(--muted); border-radius:5px; padding:4px 7px;
+  flex-shrink:0;
+}
+.title{font-weight:550; flex:1; min-width:180px}
+.pill{
+  font-size:11.5px; border-radius:999px; padding:2px 9px; flex-shrink:0;
+  border:1px solid var(--line); color:var(--muted);
+}
+.pill.bad{background:var(--bad-soft); border-color:transparent; color:var(--bad); font-weight:600}
+.pill.soon{background:var(--soon-soft); border-color:transparent; color:var(--soon); font-weight:600}
+.pill.week{background:var(--week-soft); border-color:transparent; color:var(--week)}
+.pill.ok{background:var(--ok-soft); border-color:transparent; color:var(--ok)}
+
+.row2{display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:wrap; color:var(--muted); font-size:12.5px}
+.due{font-family:ui-monospace, Consolas, monospace}
+.left{font-family:ui-monospace, Consolas, monospace; font-weight:600}
+.task.past .left,.task.urgent .left{color:var(--bad)}
+.task.soon .left{color:var(--soon)}
+.task.week .left{color:var(--week)}
+a.go{color:var(--accent); text-decoration:none; margin-left:auto; font-size:12.5px; white-space:nowrap}
+a.go:hover{text-decoration:underline}
+
+.bar{height:3px; border-radius:2px; background:var(--surface-2); margin-top:8px; overflow:hidden}
+.bar > i{display:block; height:100%; border-radius:2px; background:var(--muted)}
+.task.past .bar > i,.task.urgent .bar > i{background:var(--bad)}
+.task.soon .bar > i{background:var(--soon)}
+.task.week .bar > i{background:var(--week)}
+.task.done .bar{display:none}
+
+.empty{color:var(--muted); text-align:center; padding:44px 0; font-size:14px}
+footer{color:var(--muted); font-size:12px; text-align:center; margin-top:40px; line-height:1.9}
+kbd{background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:11px}
+@media print{
+  header{position:static} #theme,.controls{display:none}
+  .task{break-inside:avoid; box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Canvas 截止日期<span class="sub" id="who"></span></h1>
+    <div class="meta">
+      <span id="updated"></span>
+      <span id="src"></span>
+      <span id="tz"></span>
+    </div>
+    <button id="theme" title="切换深浅色">◐</button>
+  </header>
+
+  <div id="banners"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="controls">
+    <button class="chip" id="f-action" aria-pressed="false">只看未交</button>
+    <button class="chip" id="f-overdue" aria-pressed="false">只看已过期</button>
+    <input id="q" type="search" placeholder="搜课程、作业名…" autocomplete="off">
+  </div>
+
+  <div id="list"></div>
+
+  <footer>
+    由 <code>fetch.py</code> 生成 · 主界面是桌面挂件，这个页面是完整列表<br>
+    倒计时每秒自动刷新（纯本地计算，不联网）
+  </footer>
+</div>
+
+<script>
+"use strict";
+var DATA = /*__DATA__*/;
+
+var WINDOW_HOURS = 168;   // 进度条的参考窗口：7 天
+
+function parseISO(s){
+  if(!s) return null;
+  var d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function pad(n){ return (n<10?"0":"") + n; }
+function rough(sec){
+  var t = Math.floor(sec), d, h, m;
+  d = Math.floor(t/86400); t -= d*86400;
+  h = Math.floor(t/3600);  t -= h*3600;
+  m = Math.floor(t/60);
+  if(d) return d + "天" + (h ? h + "小时" : "");
+  if(h) return h + "小时" + (m ? m + "分" : "");
+  return m + "分钟";
+}
+function countdown(sec){
+  if(sec < 0) return "已过期 " + rough(-sec);
+  var t = Math.floor(sec), d = Math.floor(t/86400), r = t - d*86400;
+  var h = Math.floor(r/3600), m = Math.floor((r - h*3600)/60), s = r % 60;
+  var clock = pad(h) + ":" + pad(m) + ":" + pad(s);
+  return d ? d + "天 " + clock : clock;
+}
+function urgency(sec){
+  if(sec < 0) return "past";
+  if(sec < 86400) return "urgent";
+  if(sec < 259200) return "soon";
+  if(sec < 604800) return "week";
+  return "later";
+}
+function frac(sec){
+  if(sec <= 0) return 1;
+  if(sec >= WINDOW_HOURS*3600) return 0;
+  return 1 - sec/(WINDOW_HOURS*3600);
+}
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+var meta  = DATA.fetch || {};
+var tasks = DATA.tasks || [];
+var undated = DATA.undated || [];
+
+// 状态标记：True/False/null 三种都要能区分 ——
+// null 是「不知道」（比如讨论区没有提交这回事），不能显示成「没交」
+function statusOf(t){
+  if(t.excused)     return {cls:"ok",   text:"已豁免"};
+  if(t.submitted === true)  return {cls:"ok",   text:t.late ? "已交（迟交）" : "已交"};
+  if(t.submitted === false) return {cls:"bad",  text:t.missing ? "未交 · Canvas 标记为漏交" : "未交"};
+  return {cls:"", text:"状态未知"};
+}
+
+// ---------------------------------------------------------------- 顶部
+document.getElementById("who").textContent = meta.student ? "· " + meta.student : "";
+document.getElementById("updated").textContent = "更新于 " + (meta.time || "?");
+document.getElementById("tz").textContent = "时区 " + (meta.timezone || "?");
+document.getElementById("src").textContent =
+  meta.source === "fallback" ? "逐课程拉取" : "Planner";
+
+var banners = [];
+if(!meta.ok){
+  var b = ['<div class="banner bad"><div><b>⚠ 这次拉取失败了</b>'];
+  b.push("<div>原因：" + esc(meta.error || "未知") + "</div>");
+  if(meta.hint) b.push('<div class="fix">' + esc(meta.hint) + "</div>");
+  if(meta.error_kind === "auth"){
+    b.push('<div class="fix">去 Canvas → Account → Settings → Approved Integrations '
+         + '→ + New Access Token 生成一串新的，粘进 config.json 的 canvas.token。</div>');
+  }
+  if(tasks.length) b.push('<div class="fix">下面的数据是上一次成功拉取的，可能已经过时。</div>');
+  b.push("</div></div>");
+  banners.push(b.join(""));
+}
+if(meta.planner_error){
+  banners.push('<div class="banner warn"><div><b>Planner 接口不可用</b>'
+    + '<div class="fix">已自动改用逐课程拉取，结果一样，只是慢一点。'
+    + esc(meta.planner_error) + "</div></div></div>");
+}
+if(meta.token_warn){
+  banners.push('<div class="banner warn"><div><b>该换 token 了</b>'
+    + '<div class="fix">这串 token 已经用了 ' + Math.round(meta.token_days_used || 0)
+    + " 天，Canvas 通常 " + (meta.token_days_limit || 30)
+    + " 天就让它过期。趁现在记得，去生成一串新的。</div></div></div>");
+}
+document.getElementById("banners").innerHTML = banners.join("");
+
+// ---------------------------------------------------------------- 统计块
+var now0 = Date.now();
+var overdue = 0, in24 = 0, in7 = 0, action = 0;
+tasks.forEach(function(t){
+  var d = parseISO(t.due_utc); if(!d) return;
+  var left = (d.getTime() - now0)/1000;
+  if(t.needs_action){
+    action++;
+    if(left < 0) overdue++;
+    else if(left < 86400) in24++;
+    if(left < 604800) in7++;
+  }
+});
+document.getElementById("tiles").innerHTML = [
+  {n: action,  k: "待处理",      cls: action ? "" : "ok"},
+  {n: overdue, k: "已过期未交",  cls: overdue ? "bad" : "ok"},
+  {n: in24,    k: "24 小时内",   cls: in24 ? "bad" : "ok"},
+  {n: in7,     k: "7 天内",      cls: in7 ? "soon" : "ok"},
+  {n: meta.course_count || 0, k: "在修课程", cls: ""}
+].map(function(t){
+  return '<div class="tile ' + t.cls + '"><div class="n">' + t.n
+       + '</div><div class="k">' + t.k + "</div></div>";
+}).join("");
+
+// ---------------------------------------------------------------- 列表
+var showAll = false, onlyOverdue = false, query = "";
+
+function visible(t){
+  if(!showAll && !t.needs_action) return false;
+  if(onlyOverdue){
+    var d = parseISO(t.due_utc);
+    if(!d || d.getTime() >= Date.now()) return false;
+  }
+  if(query){
+    var hay = (t.course_code + " " + t.course_name + " " + t.title + " " + t.type_label).toLowerCase();
+    if(hay.indexOf(query) < 0) return false;
+  }
+  return true;
+}
+
+// 分组：已过期未交排最前，其次是越近的越前
+var GROUPS = [
+  {key:"past",   title:"已过期且未交", test:function(l){ return l < 0; }},
+  {key:"urgent", title:"24 小时内",   test:function(l){ return l >= 0 && l < 86400; }},
+  {key:"soon",   title:"3 天内",      test:function(l){ return l >= 86400 && l < 259200; }},
+  {key:"week",   title:"7 天内",      test:function(l){ return l >= 259200 && l < 604800; }},
+  {key:"later",  title:"更远",        test:function(l){ return l >= 604800; }},
+  {key:"done",   title:"已提交 / 已豁免", test:function(){ return null; }}
+];
+
+function render(){
+  var buckets = {};
+  GROUPS.forEach(function(g){ buckets[g.key] = []; });
+
+  tasks.forEach(function(t){
+    if(!visible(t)) return;
+    var d = parseISO(t.due_utc);
+    if(!t.needs_action){ buckets.done.push(t); return; }
+    if(!d){ buckets.done.push(t); return; }
+    var left = (d.getTime() - Date.now())/1000;
+    for(var i=0;i<GROUPS.length;i++){
+      if(GROUPS[i].key === "done") continue;
+      if(GROUPS[i].test(left)){ buckets[GROUPS[i].key].push(t); return; }
+    }
+    buckets.later.push(t);
+  });
+
+  var html = "";
+  GROUPS.forEach(function(g){
+    var items = buckets[g.key];
+    if(!items.length) return;
+    items.sort(function(a,b){
+      return (parseISO(a.due_utc)||0) - (parseISO(b.due_utc)||0);
+    });
+    html += "<h2>" + g.title + ' <span class="count">' + items.length + "</span></h2>";
+    items.forEach(function(t){ html += card(t); });
+  });
+
+  // 没有截止日期的单独放最后。不能直接丢掉 ——
+  // 老师没设 due date 的作业恰恰是最容易忘的那一类。
+  var und = undated.filter(function(t){
+    if(!query) return true;
+    return (t.course_code + " " + t.title).toLowerCase().indexOf(query) >= 0;
+  });
+  if(und.length){
+    html += '<h2>没有截止日期 <span class="count">' + und.length + "</span></h2>";
+    und.forEach(function(t){ html += card(t, true); });
+  }
+
+  document.getElementById("list").innerHTML =
+    html || '<div class="empty">没有符合当前筛选条件的任务。</div>';
+}
+
+function card(t, noDue){
+  var d = parseISO(t.due_utc);
+  var left = d ? (d.getTime() - Date.now())/1000 : null;
+  var u = left === null ? "later" : urgency(left);
+  var cls = t.needs_action ? u : "done";
+  var st = statusOf(t);
+
+  var out = '<div class="task ' + cls + '">';
+  out += '<div class="row1">';
+  out += '<span class="code">' + esc(t.course_code) + "</span>";
+  out += '<span class="title">' + esc(t.title) + "</span>";
+  out += '<span class="pill">' + esc(t.type_label) + "</span>";
+  out += '<span class="pill ' + st.cls + '">' + esc(st.text) + "</span>";
+  out += "</div>";
+
+  out += '<div class="row2">';
+  if(noDue || !d){
+    out += "<span>没有设置截止时间</span>";
+  }else{
+    out += '<span class="due">' + esc(t.due_full) + "</span>";
+    out += '<span class="left" data-due="' + esc(t.due_utc) + '">剩 ' + countdown(left) + "</span>";
+    if(t.points != null) out += "<span>" + esc(t.points) + " 分</span>";
+  }
+  if(t.url) out += '<a class="go" href="' + esc(t.url) + '" target="_blank" rel="noopener">打开 →</a>';
+  out += "</div>";
+
+  if(d && t.needs_action){
+    var pct = Math.round(frac(left) * 100);
+    out += '<div class="bar"><i style="width:' + pct + '%"></i></div>';
+  }
+  return out + "</div>";
+}
+
+// 每秒重算倒计时。只改文字，不重建 DOM —— 重建会让滚动位置和选区丢掉。
+function tick(){
+  var nodes = document.querySelectorAll(".left[data-due]");
+  for(var i=0;i<nodes.length;i++){
+    var d = parseISO(nodes[i].getAttribute("data-due"));
+    if(!d) continue;
+    var sec = (d.getTime() - Date.now())/1000;
+    nodes[i].textContent = "剩 " + countdown(sec);
+  }
+}
+
+var fAction = document.getElementById("f-action");
+var fOverdue = document.getElementById("f-overdue");
+fAction.setAttribute("aria-pressed", "false");
+fOverdue.setAttribute("aria-pressed", "false");
+
+fAction.onclick = function(){
+  showAll = !showAll;
+  fAction.setAttribute("aria-pressed", showAll ? "true" : "false");
+  fAction.textContent = showAll ? "显示全部" : "只看未交";
+  render();
+};
+fOverdue.onclick = function(){
+  onlyOverdue = !onlyOverdue;
+  fOverdue.setAttribute("aria-pressed", onlyOverdue ? "true" : "false");
+  render();
+};
+document.getElementById("q").oninput = function(e){
+  query = e.target.value.trim().toLowerCase();
+  render();
+};
+
+// 深浅色手动切换，记住选择
+var root = document.documentElement;
+try{
+  var saved = localStorage.getItem("cd-theme");
+  if(saved) root.setAttribute("data-theme", saved);
+}catch(e){}
+document.getElementById("theme").onclick = function(){
+  var cur = root.getAttribute("data-theme");
+  if(!cur){
+    cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  var next = cur === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  try{ localStorage.setItem("cd-theme", next); }catch(e){}
+};
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "/" && document.activeElement !== document.getElementById("q")){
+    e.preventDefault();
+    document.getElementById("q").focus();
+  }
+});
+
+render();
+tick();
+setInterval(tick, 1000);
+</script>
+</body>
+</html>

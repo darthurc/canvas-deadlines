@@ -1,0 +1,62 @@
+{
+  "_说明": "改完这个文件，下次拉取就会生效（不用重启什么）。必须填的只有 canvas.calendar_feed_url 这一项 —— 不想手改的话，双击「首次设置.bat」（Mac 上是「Mac-2-首次设置.command」）有个窗口让你粘。",
+  "canvas": {
+    "_说明": "墨大关闭了学生自助生成 token 的权限，所以改用「日历订阅链接」。必填的只有 calendar_feed_url 这一项。",
+    "calendar_feed_url": "",
+    "_calendar_feed_url说明": "怎么拿：Canvas 左边深色竖条 → Calendar（日历）→ 右侧栏拉到最下面 → 点 Calendar Feed → 复制弹出的那串网址（以 .ics 结尾），粘到引号中间。",
+    "_calendar_feed_url安全": "这串网址等于一把钥匙：谁拿到都能看到你的课程日历，但看不到成绩、也改不了任何东西。不要发群里、不要提交到 GitHub。想换一把：回到 Calendar Feed 那里点 Reset，旧网址立刻失效。",
+    "base_url": "https://canvas.lms.unimelb.edu.au",
+    "token": "",
+    "_token说明": "留空即可。墨大不让学生生成 API token，所以用不上。如果哪天学校开放了，填在这里会自动启用（并优先于日历订阅）。它等于你的登录凭证，不要发到群里、不要提交到 GitHub；随时可以在同一个页面点 Delete 撤销，撤销后这个程序立刻失效。",
+    "timeout": 20,
+    "_timeout说明": "单个请求的超时秒数。",
+    "max_retries": 3,
+    "_max_retries说明": "网络错误重试几次（认证错误不重试，重试也没用）。",
+    "token_days": 30,
+    "_token_days说明": "Canvas 通常给学生 token 设 30 天有效期。挂件会在快到期时提前提醒你换新的。如果你生成时看到有效期不是 30 天，改成实际天数。",
+    "use_planner": true,
+    "_use_planner说明": "True = 用 Canvas 的 Planner 接口，一次拿到所有课程的作业/测验/事件，而且日期已经按你的 section 个性化过。如果这个接口在墨大被关了，改成 False 会退回逐课程拉取的方式（慢一点但更稳）。"
+  },
+  "display": {
+    "_说明": "挂件显示相关的设置。改完要重启挂件（右键 → 退出，再双击启动挂件的那个文件）。",
+    "top_n": 5,
+    "_top_n说明": "默认显示最近几个任务。右键菜单里可以临时切换成「显示全部」。",
+    "show_submitted": false,
+    "_show_submitted说明": "是否显示已经交过的任务。",
+    "past_days": 14,
+    "_past_days说明": "往回看几天。设成 14 就会把最近两周已经过期但没交的任务也列出来提醒你。",
+    "future_days": 180,
+    "_future_days说明": "往未来看几天。180 天足够覆盖一整个学期。",
+    "stale_hours": 36,
+    "_stale_hours说明": "数据超过这么多小时没更新，挂件顶部就变红警告。",
+    "notify_hours": 48,
+    "_notify_hours说明": "剩余时间少于这么多小时的未交任务，会弹桌面通知。0 = 关掉通知。",
+    "emphasize_hours": 72,
+    "_emphasize_hours说明": "剩余时间少于这么多小时的任务，挂件上整行字会放大一号。默认 72 小时 = 三天。设成 0 关掉这个效果。",
+    "hide_types": [
+      "calendar_event",
+      "planner_note"
+    ],
+    "_hide_types说明": "挂件里不显示的类型。Canvas 的日历事件通常是课程表/讲座时间，个人笔记是你自己随手记的 —— 这两类不是「作业」，混进来会把挂件刷屏。想看到它们就删掉这一项，或者改成 []（空列表 = 全都显示）。"
+  },
+  "window": {
+    "_说明": "挂件外观。位置会在你拖动后自动记到 state\\widget.json，不用手改。",
+    "alpha": 0.96,
+    "_alpha说明": "透明度，0.5（很透）到 1.0（完全不透）。",
+    "topmost": false,
+    "_topmost说明": "是否一直显示在其他窗口上面。默认 false = 当普通窗口，别的窗口能正常盖住它；想要常驻最前就在挂件右键菜单里打开「窗口置顶」。",
+    "font_size": 10,
+    "width": 310,
+    "theme": "auto",
+    "_theme说明": "auto = 跟随系统深浅色 / light / dark"
+  },
+  "output": {
+    "_说明": "每次拉取额外生成哪些文件。",
+    "write_html": true,
+    "_write_html说明": "生成完整列表网页。挂件只显示前几个，想看整学期全部的时候用它。",
+    "write_text": true,
+    "_write_text说明": "生成纯文本快照，万一哪天出问题还能用记事本打开看。",
+    "keep_log_days": 60,
+    "_keep_log_days说明": "fetch_log.txt 保留多少天的记录，超了自动裁掉。"
+  }
+}
